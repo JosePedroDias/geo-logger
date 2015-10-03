@@ -10,7 +10,7 @@ http://127.0.0.1:3333/puts [array of payloads in the post body]
 */
 
 
-var PORT = 3333;
+var PORT = 7744;
 
 var FILE = 'log.json';
 
