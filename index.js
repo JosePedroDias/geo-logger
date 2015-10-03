@@ -1,5 +1,6 @@
 var http = require('http');
 var url  = require('url');
+var fs = require('fs');
 
 
 /*
@@ -11,11 +12,32 @@ http://127.0.0.1:3333/puts [array of payloads in the post body]
 
 var PORT = 3333;
 
+var FILE = 'log.json';
 
 
 var lines = [];
 	
+  
 
+try {
+  var tmp = fs.readFileSync(FILE).toString();
+  lines = JSON.parse(tmp);
+  console.log('file %s restored', FILE);
+} catch (ex) {
+  console.log('file %s restore failed or not found', FILE);
+}
+
+setInterval(
+  function() {
+    fs.writeFile(FILE, JSON.stringify(lines), function(err) {
+      console.log( err ? 'error saving file' : 'file saved' );
+    });
+  },
+  1 * 60 * 1000
+);
+
+  
+  
 var srv = http.createServer(function(req, res) {
 	var u = req.url;
 	
