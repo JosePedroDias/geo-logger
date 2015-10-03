@@ -16,6 +16,7 @@ var FILE = 'log.json';
 
 
 var lines = [];
+var isDirty = false;
 	
   
 
@@ -29,11 +30,13 @@ try {
 
 setInterval(
   function() {
+    if (!isDirty) { return; }
+    isDirty = false;
     fs.writeFile(FILE, JSON.stringify(lines), function(err) {
       console.log( err ? 'error saving file' : 'file saved' );
     });
   },
-  1 * 60 * 1000
+  5 * 60 * 1000
 );
 
   
@@ -55,10 +58,16 @@ var srv = http.createServer(function(req, res) {
   if (p === '/get') {
     resp = lines;
   }
+  else if (p === '/zero') {
+    lines = [];
+    isDirty = true;
+    resp = 'ok';
+  }
   else if (p === '/put') {
     try {
       var d = JSON.parse(q.payload);
       lines.push(d);
+      isDirty = true;
     } catch (ex) {
       console.error(ex);
     }
@@ -73,6 +82,7 @@ var srv = http.createServer(function(req, res) {
       try {
         var d = JSON.parse(body);
         lines = lines.concat(d);
+        isDirty = true;
       } catch (ex) {
         console.error(ex);
       }
