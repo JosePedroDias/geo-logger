@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css">
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
+    
+        <style>
+            body {
+                padding: 0;
+                margin:  0;
+                font-family: sans-serif;
+            }
+
+            html, body, #map {
+                height: 100%;
+            }
+
+            #legend {
+                position: absolute;
+                left:   0.5em;
+                bottom: 0.5em;
+                display: inline-block;
+                background-color: rgba(255, 255, 255, 0.5);
+                padding: 0.5em;
+            }
+
+            #legend p {
+                margin: 0;
+            }
+
+            #legend label {
+                display: inline-block;
+                font-weight: bold;
+                width: 3em;
+            }
+
+            #record {
+                position: absolute;
+                right: 0.5em;
+                top: 0.5em;
+                background-color: #7A7;
+                padding: 0.5em;
+            }
+
+            #record.on {
+                background-color: #A77;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="map"></div>
+        
+        <div id="record">REC</div>
+        
+        <div id="legend">
+            <p><label>lat:</label> <span id="lat">_</span></p>
+            <p><label>lon:</label> <span id="lon">_</span></p>
+            <p><label>acc:</label> <span id="acc">_</span></p>
+            <p><label>ts:</label> <span id="ts">_</span></p>
+        </div>
+    <script>
+        (function(w) {
+            'use strict';
+
+            /*global L:false*/
+
+            var QS = function(sel) {
+                return document.querySelector(sel);
+            };
+
+            var pending = [];
+
+            var ajax = function(uri, body, cb) {
+                var xhr = new XMLHttpRequest();
+                xhr.open(body ? 'POST' : 'GET', uri, true);
+                var cbInner = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        return cb(null, JSON.parse(xhr.response));
+                    }
+                    cb('error requesting ' + uri);
+                };
+                xhr.onload  = cbInner;
+                xhr.onerror = cbInner;
+                xhr.send(body ? body : null);
+            };
+
+            var latEl = QS('#lat');
+            var lonEl = QS('#lon');
+            var accEl = QS('#acc');
+            var tsEl  = QS('#ts');
+            var recEl = QS('#record');
+
+            var isRecording = false;
+            var maxPositions = 30;
+            var positions = [];
+
+            var map = L.map('map');
+
+            /*var mapQuest = L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
+                type: 'map',
+                ext: 'jpg',
+                attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                subdomains: '1234'
+            });*/
+
+            var osmMapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            });
+
+            osmMapnik.addTo(map);
+
+            var line = L.polyline(positions, {color: 'red'}).addTo(map);
+
+            map.setView([38.7291, -9.1465], 18); // lisbon
+
+            if (!('geolocation' in navigator)) {
+                return w.alert('no geolocation support!');
+            }
+
+            /*
+            timestamp
+            coords
+                accuracy
+                altitude
+                altitudeAccuracy
+                heading
+                latitude
+                longitude
+                speed
+            */
+            var onPositionNew = function(gp) {
+                var lat = gp.coords.latitude;
+                var lon = gp.coords.longitude;
+                var acc = gp.coords.accuracy;
+                /*var alt = gp.coords.altitude;
+                var altAcc = gp.coords.altitudeAccuracy;*/
+                var ts = gp.timestamp;
+                var pair = [lat, lon];
+                //w.console.log(gp);
+                map.setView(pair);
+                latEl.firstChild.nodeValue = lat.toFixed(7);
+                lonEl.firstChild.nodeValue = lon.toFixed(7);
+                accEl.firstChild.nodeValue = acc.toFixed(1) + 'm';
+                tsEl.firstChild.nodeValue = new Date(ts).toTimeString().split(' ')[0];
+
+                positions.unshift(pair);
+                if (positions.length >= maxPositions) {
+                    positions.pop();
+                }
+                line.setLatLngs(positions);
+
+                pending.push({
+                    ts : ts,
+                    la : lat,
+                    lo : lon,
+                    ac : Math.round(acc)/*,
+                    alt    : alt,
+                    altAcc : altAcc*/
+                });
+            };
+
+            var onPositionErr = function(err) {
+                w.alert(err);
+            };
+
+            // https://developer.mozilla.org/en-US/docs/Web/API/PositionOptions
+            var geoOpts = {
+                enableHighAccuracy : true,
+                maximumAge         : 30000,
+                timeout            : 27000
+            };
+
+            /*var watchId = */ navigator.geolocation.watchPosition(onPositionNew, onPositionErr, geoOpts);
+
+            recEl.addEventListener('click', function() {
+                isRecording = !isRecording;
+                recEl.classList.toggle('on');
+                recEl.firstChild.nodeValue = (isRecording ? 'STOP' : 'REC');
+            });
+
+            setInterval(function() {
+                if (pending.length === 0) { return; }
+                var payload = JSON.stringify(pending);
+                pending = [];
+                ajax(
+                    'http://stage.sl.pt:7744/puts',
+                    payload,
+                    function(/*err, out*/) {
+                    }
+                );
+            }, 20 * 1000);
+
+        })(this);
+        </script>
+    </body>
+</html>
