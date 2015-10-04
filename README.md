@@ -12,7 +12,7 @@ Saves to JSON file every n mins.
 all readings  
 GET `/get`
 
-as geoJSON lines  
+as geoJSON lines for usage in [leaflet](http://leafletjs.com/), [geojson.io](http://geojson.io/), etc.  
 GET `/get?geojson=1`
 
 only with timestamp between `0` and `2nd Oct 2015 9:22`  
@@ -34,9 +34,10 @@ POST `/puts`
 ## importKlm
 
 Converts KLM format logs from `https://www.google.com/maps/timeline`
-into our simple JSON format (la, lo, ts).
+into our simple JSON format `{la, lo, ts}`.
 
 
 ## TODO
 
-* dest dist and bounds
+* Test dist and bounds filters
+
