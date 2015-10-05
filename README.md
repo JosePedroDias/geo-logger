@@ -7,6 +7,7 @@ HTTP server for storing GPS coords and querying them.
 Saves to JSON file every n mins.
 
 
+
 ## HTTP Interface
 
 ### get/search
@@ -58,12 +59,32 @@ Converts KLM format logs from [google timeline](https://www.google.com/maps/time
 into our simple JSON format `{la, lo, ts}`.
 
 
+## pages
+
+### client
+
+example client using leaflet to display the map
+and `navigator.geolocation` to fetch GPS readings.  
+[demo](http://rawgit.com/JosePedroDias/geo-logger/master/client.html)
+
+
+### viewer
+
+displays data recorded earlier as geojson (uses the HTTP interface)  
+[demo](http://rawgit.com/JosePedroDias/geo-logger/master/viewer.html)
+
+
+### getForm
+
+aids in creating get requests with filters and transforms.  
+[demo](http://rawgit.com/JosePedroDias/geo-logger/master/getForm.html)
+
+
 ## TODO
 
 * server
     * optimize dist with prior internal bound
 * viewer
-    * correctly draw geojson
     * allow drawing restrictions such a bounds, radius and a timeline UI.
     * playback positions instead of drawing them
 * client

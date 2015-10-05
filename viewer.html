@@ -29,13 +29,10 @@
             (function(w) {
                 'use strict';
 
+                //var SERVER = 'http://127.0.0.1:7744';
+                var SERVER = 'http://stage.sl.pt:7744';
+
                 /*global L:false*/
-
-                var QS = function(sel) {
-                    return document.querySelector(sel);
-                };
-
-                var pending = [];
 
                 var ajax = function(uri, body, cb) {
                     var xhr = new XMLHttpRequest();
@@ -53,30 +50,25 @@
 
                 var map = L.map('map');
 
-                var mapQuest = L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
+                L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
                     type: 'map',
                     ext: 'jpg',
                     attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                     subdomains: '1234'
-                });
-                mapQuest.addTo(map);
+                }).addTo(map);
 
-                /*var osmMapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                /*L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                });
-                osmMapnik.addTo(map);*/
+                })addTo(map);*/
 
                 //var line = L.polyline(positions, {color: 'red'}).addTo(map);
 
                 map.setView([38.7291, -9.1465], 18); // lisbon
 
-                ajax('http://stage.sl.pt:7744/get?geojson=1', null, function(err, o) {
+                ajax(SERVER + '/get?accuracy=12&time=1444003200000,1444089600000&simplify=0.0001&geojson=1', null, function(err, o) {
                     if (err) { return w.alert(err); }
-                    var gArr = o.features.map(function(f) { return f.geometry; });
-                    //var gArr = o;
-                    console.log(gArr);
-                    L.geoJson(gArr).addTo(map);
+                    L.geoJson(o).addTo(map);
                 });
             })(this);
         </script>
