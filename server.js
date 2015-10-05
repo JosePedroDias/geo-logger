@@ -2,6 +2,8 @@ var http = require('http');
 var url  = require('url');
 var fs = require('fs');
 
+var simplify = require('./vendor/simplify');
+
 
 var PORT = 7744;
 
@@ -113,6 +115,10 @@ var srv = http.createServer(function(req, res) {
       if (isFinite(v[1])) { cond.push('o.ts <= ' + v[1]); }
       f = new Function('o', [us, 'return ', cond.join(' && '), ';'].join(''));
       resp = resp.filter(f);
+    }
+    if ('simplify' in q) { // tolerance
+      v = parseFloat(q.simplify);
+      resp = simplify(resp, v, true);
     }
     if ('bounds' in q) { // latm, latM, lonm, lonM
       v = q.bounds.split(',');

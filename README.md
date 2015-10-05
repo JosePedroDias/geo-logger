@@ -17,8 +17,14 @@ GET `/get`
 
 #### filters (several can be used at once)
 
+only readings with accuracy <= 12m  
+GET `/get?accuracy=12`
+
 only with timestamp between `0` and `2nd Oct 2015 9:22`  
 GET `/get?time=0,1443774162534`
+
+applies [simplification algorithm](http://mourner.github.io/simplify-js/) to the data  
+GET `/get?simplify=0.0001`
 
 only at 5Km or nearer from lat=`-9.1822393` and lon=`38.7433273`  
 GET `/get?dist=-9.1822393,38.7433273,5`

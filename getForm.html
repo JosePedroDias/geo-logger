@@ -50,6 +50,12 @@
             <label>to</label>   <input class="to-d"   type="date" value=""> <input class="to-t"   type="time" value="">
         </div>
 
+        <div class="block simplify-filter">
+            <h3>simplify</h3>
+
+            <label>tolerance</label> <input class="simplify" type="number"> ex: (0.0001)
+        </div>
+
         <div class="block bounds-filter">
             <h3>bounds</h3>
 
@@ -136,6 +142,16 @@
 
 
 
+                var simplifyFilter = function() {
+                    var simplify = QS('.simplify-filter .simplify').value;
+
+                    if (simplify) {
+                        return simplify;
+                    }
+                };
+
+
+
                 var boundsFilter = function() {
                     var la1 = QS('.bounds-filter .la1').value || '';
                     var lo1 = QS('.bounds-filter .lo1').value || '';
@@ -178,6 +194,9 @@
 
                     var time = timeFilter();
                     if (time) { result.push('time=' + time); }
+
+                    var simplify = simplifyFilter();
+                    if (simplify) { result.push('simplify=' + simplify); }
 
                     var bounds = boundsFilter();
                     if (bounds) { result.push('bounds=' + bounds); }
