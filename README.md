@@ -41,7 +41,6 @@ into our simple JSON format `{la, lo, ts}`.
 ## TODO
 
 * server
-    * test dist and bounds filters
     * optimize dist with prior internal bound
 * viewer
     * correctly draw geojson

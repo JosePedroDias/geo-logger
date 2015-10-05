@@ -136,8 +136,8 @@ var srv = http.createServer(function(req, res) {
       v = q.time.split(',');
       v = v.map(parseFloat);
       cond = [];
-      if (isFinite(v[0])) { cond.push('o.ts > ' + v[0]); }
-      if (isFinite(v[1])) { cond.push('o.ts < ' + v[1]); }
+      if (isFinite(v[0])) { cond.push('o.ts >= ' + v[0]); }
+      if (isFinite(v[1])) { cond.push('o.ts <= ' + v[1]); }
       f = new Function('o', [us, 'return ', cond.join(' && '), ';'].join(''));
       resp = resp.filter(f);
     }
@@ -145,17 +145,17 @@ var srv = http.createServer(function(req, res) {
       v = q.bounds.split(',');
       v = v.map(parseFloat);
       cond = [];
-      if (isFinite(v[0])) { cond.push('o.la > ' + v[0]); }
-      if (isFinite(v[1])) { cond.push('o.la < ' + v[1]); }
-      if (isFinite(v[2])) { cond.push('o.lo > ' + v[2]); }
-      if (isFinite(v[3])) { cond.push('o.lo < ' + v[3]); }
+      if (isFinite(v[0])) { cond.push('o.la >= ' + v[0]); }
+      if (isFinite(v[1])) { cond.push('o.la <= ' + v[1]); }
+      if (isFinite(v[2])) { cond.push('o.lo >= ' + v[2]); }
+      if (isFinite(v[3])) { cond.push('o.lo <= ' + v[3]); }
       f = new Function('o', [us, 'return ', cond.join(' && '), ';'].join(''));
       resp = resp.filter(f);
     }
     if ('dist' in q) { // lat, lon, rad (in spheric space, radius in km, accurate)
       v = q.dist.split(',');
       v = v.map(parseFloat);
-      f = new Function('o', [us, 'var la2 = o.la; var lo2 = o.lo; var la1 = ', v[0] , ' * 0.017453292519943295; var lo1 = ', v[1], ' * 0.017453292519943295; la2 *= 0.017453292519943295; lo2 *= 0.017453292519943295; var dla = la2 - la1; var dlo = lo2 - lo1; var a = Math.pow( Math.sin(dla/2), 2) + Math.pow( Math.sin(dlo/2) * Math.cos(la1) * Math.cos(la2), 2); var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return c * 6373 < ', v[2], ';'].join(''));
+      f = new Function('o', [us, 'var la2 = o.la; var lo2 = o.lo; var la1 = ', v[0] , ' * 0.017453292519943295; var lo1 = ', v[1], ' * 0.017453292519943295; la2 *= 0.017453292519943295; lo2 *= 0.017453292519943295; var dla = la2 - la1; var dlo = lo2 - lo1; var a = Math.pow( Math.sin(dla/2), 2) + Math.pow( Math.sin(dlo/2) * Math.cos(la1) * Math.cos(la2), 2); var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return c * 6373 <= ', v[2], ';'].join(''));
       resp = resp.filter(f);
     }
     if ('geojson' in q) {
