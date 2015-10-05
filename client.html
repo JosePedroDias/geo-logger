@@ -102,19 +102,21 @@
 
             var map = L.map('map');
 
-            /*var mapQuest = L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
+            var mapQuest = L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
                 type: 'map',
                 ext: 'jpg',
                 attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                 subdomains: '1234'
-            });*/
+            });
+            mapQuest.addTo(map);
 
-            var osmMapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            /*var osmMapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             });
+            osmMapnik.addTo(map);*/
 
-            osmMapnik.addTo(map);
+
 
             var line = L.polyline(positions, {color: 'red'}).addTo(map);
 
@@ -124,17 +126,6 @@
                 return w.alert('no geolocation support!');
             }
 
-            /*
-            timestamp
-            coords
-                accuracy
-                altitude
-                altitudeAccuracy
-                heading
-                latitude
-                longitude
-                speed
-            */
             var onPositionNew = function(gp) {
                 var lat = gp.coords.latitude;
                 var lon = gp.coords.longitude;
