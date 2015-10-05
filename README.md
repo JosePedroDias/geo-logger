@@ -4,7 +4,8 @@
 ## what?
 
 HTTP server for storing GPS coords and querying them.  
-Saves to JSON file every n mins.
+All data processed in memory, stored to JSON file every n minutes.  
+You can perform some interesting operations on the raw data (filters and transforms, see below).
 
 
 
