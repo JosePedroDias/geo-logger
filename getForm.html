@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        <title>get wizard</title>
+
+        <style>
+            body {
+                font-family: sans-serif;
+            }
+
+            .block {
+                border: 1px solid #AAA;
+                padding: 0.5em;
+                margin-bottom: 0.5em;
+            }
+
+            .block label {
+                display: inline-block;
+                width: 4em;
+                font-weight: bold;
+            }
+
+            h2, h3 {
+                margin: 0;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>get form</h1>
+
+
+
+        <h2>filters</h2>
+
+        <div class="block accuracy-filter">
+            <h3>accuracy</h3>
+
+            <label>min</label> <input class="acc" type="number" value=""> m
+        </div>
+
+        <div class="block time-filter">
+            <h3>time</h3>
+
+            <label>from</label> <input class="from-d" type="date" value=""> <input class="from-t" type="time" value=""> <br/>
+            <label>to</label>   <input class="to-d"   type="date" value=""> <input class="to-t"   type="time" value="">
+        </div>
+
+        <div class="block bounds-filter">
+            <h3>bounds</h3>
+
+            <label>la 1</label> <input class="la1" type="number" value=""> <br/>
+            <label>lo 1</label> <input class="lo1" type="number" value=""> <br/>
+            <label>la 2</label> <input class="la2" type="number" value=""> <br/>
+            <label>lo 2</label> <input class="lo2" type="number" value="">
+        </div>
+
+        <div class="block dist-filter">
+            <h3>dist</h3>
+
+            <label>la</label>     <input class="la"     type="number" value=""> <br/>
+            <label>lo</label>     <input class="lo"     type="number" value=""> <br/>
+            <label>radius</label> <input class="radius" type="number" value=""> Km
+        </div>
+
+
+
+        <h2>transformations</h2>
+
+        <div class="block noop-trans">
+            <h3>noop</h3>
+
+            <input name="trans" type="radio" value="" checked>
+        </div>
+
+        <div class="block count-trans">
+            <h3>count</h3>
+
+            <input name="trans" type="radio" value="count">
+        </div>
+
+        <div class="block geojson-trans">
+            <h3>geojson</h3>
+
+            <input name="trans" type="radio" value="geojson">
+        </div>
+
+
+
+        <button>update</button>
+
+        <a href="" target="_blank"><pre>/get</pre></a>
+
+
+
+        <script>
+            (function(w) {
+                'use strict';
+
+                var SERVER = 'http://127.0.0.1:7744';
+
+
+
+                var QS = function(sel) {
+                    return document.querySelector(sel);
+                };
+
+
+
+                var accuracyFilter = function() {
+                    var acc = QS('.accuracy-filter .acc').value;
+
+                    if (acc) {
+                        return acc;
+                    }
+                };
+
+
+
+                var timeFilter = function() {
+                    var fd = QS('.time-filter .from-d').value;
+                    var ft = QS('.time-filter .from-t').value;
+                    var td = QS('.time-filter .to-d'  ).value;
+                    var tt = QS('.time-filter .to-t'  ).value;
+
+                    var o = ['', ''];
+                    if (fd) { o[0] = new Date( ft ? (fd + ' ' + ft) : fd).valueOf(); }
+                    if (td) { o[1] = new Date( tt ? (td + ' ' + tt) : td).valueOf(); }
+
+                    return ( (o[0] || o[1]) ? o.join(',') : undefined);
+                };
+
+
+
+                var boundsFilter = function() {
+                    var la1 = QS('.bounds-filter .la1').value || '';
+                    var lo1 = QS('.bounds-filter .lo1').value || '';
+                    var la2 = QS('.bounds-filter .la2').value || '';
+                    var lo2 = QS('.bounds-filter .lo2').value || '';
+
+                    if (la1 || lo1 || la2 || lo2) {
+                        return [la1, lo1, la2, lo2].join(',');
+                    }
+                };
+
+
+
+                var distFilter = function() {
+                    var la     = QS('.dist-filter .la'    ).value || '';
+                    var lo     = QS('.dist-filter .lo'    ).value || '';
+                    var radius = QS('.dist-filter .radius').value || '';
+
+                    if (la && lo && radius) {
+                        return [la, lo, radius].join(',');
+                    }
+                };
+
+
+
+                var applyTrans = function() {
+                    var op;
+                    if      ( QS(  '.count-trans input').checked ) { op = 'count'; }
+                    else if ( QS('.geojson-trans input').checked ) { op = 'geojson'; }
+                    return op;
+                };
+
+
+
+                QS('button').addEventListener('click', function(ev) {
+                    var result = [];
+
+                    var accuracy = accuracyFilter();
+                    if (accuracy) { result.push('accuracy=' + accuracy); }
+
+                    var time = timeFilter();
+                    if (time) { result.push('time=' + time); }
+
+                    var bounds = boundsFilter();
+                    if (bounds) { result.push('bounds=' + bounds); }
+
+                    var dist = distFilter();
+                    if (dist) { result.push('dist=' + dist); }
+
+                    var trans = applyTrans();
+                    if (trans) { result.push(trans + '=1'); }
+
+                    result = SERVER + '/get?' + result.join('&');
+
+                    QS('pre').firstChild.nodeValue = result;
+                    QS('a').href = result;
+                });
+
+            })(this);
+        </script>
+    </body>
+</html>

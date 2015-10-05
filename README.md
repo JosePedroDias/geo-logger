@@ -9,11 +9,13 @@ Saves to JSON file every n mins.
 
 ## HTTP Interface
 
+### get/search
+
 all readings  
 GET `/get`
 
-as geoJSON lines for usage in [leaflet](http://leafletjs.com/), [geojson.io](http://geojson.io/), etc.  
-GET `/get?geojson=1`
+
+#### filters (several can be used at once)
 
 only with timestamp between `0` and `2nd Oct 2015 9:22`  
 GET `/get?time=0,1443774162534`
@@ -23,6 +25,18 @@ GET `/get?dist=-9.1822393,38.7433273,5`
 
 only within bounds lat=`[-9.2513,-9.2147]` and lon=`[38.6907,38.7115]`  
 GET `/get?bounds=-9.2513,-9.2147,38.6907,38.7115`
+
+
+#### transforms (only one at most)
+
+as geoJSON lines for usage in [leaflet](http://leafletjs.com/), [geojson.io](http://geojson.io/), etc.  
+GET `/get?geojson=1`
+
+returns count instead of the items themselves  
+GET `/get?count=1`
+
+
+### put/post
 
 save one reading `{"ts":1443773887052,"la":-9.2199055,"lo":38.7136595}` (encodeURIComponent)  
 GET `/put?payload=%7B%22ts%22%3A1443773887052%2C%22la%22%3A-9.2199055%2C%22lo%22%3A38.7136595%7D`

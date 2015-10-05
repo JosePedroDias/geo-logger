@@ -15,40 +15,6 @@ var isDirty = false;
 var RK = 6373; // mean radius of the earth (km) at 39 degrees from the equator
 var DEG2RAD = Math.PI / 180;
 
-
-var findDistance = function(lat1, lon1, lat2, lon2) {
-  // convert coordinates to radians
-  lat1 *= DEG2RAD;
-  lon1 *= DEG2RAD;
-  lat2 *= DEG2RAD;
-  lon2 *= DEG2RAD;
-
-  // find the differences between the coordinates
-  var dlat = lat2 - lat1;
-  var dlon = lon2 - lon1;
-
-  // here's the heavy lifting
-  var a = Math.pow(
-    Math.sin(dlat/2),
-    2
-  ) +
-  Math.pow(
-    Math.sin(dlon/2) *
-    Math.cos(lat1) *
-    Math.cos(lat2),
-    2
-  );
-
-  var c = 2 * Math.atan2(
-    Math.sqrt(a),
-    Math.sqrt(1-a
-  )); // great circle distance in radians
-
-  return c * RK; // great circle distance in km
-};
-
-//var findDistance2 = function(lat1, lon1, lat2, lon2) { lat1 *= 0.017453292519943295; lon1 *= 0.017453292519943295; lat2 *= 0.017453292519943295; lon2 *= 0.017453292519943295; var dlat = lat2 - lat1; var dlon = lon2 - lon1; var a = Math.pow( Math.sin(dlat/2), 2) + Math.pow( Math.sin(dlon/2) * Math.cos(lat1) * Math.cos(lat2), 2); var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return c * 6373; };
-	
   
 var segmentByTime = function(arr, dt) {
   arr.sort(function(a, b) {
@@ -80,7 +46,7 @@ var line = function(arr, name) {
     geometry: {
       type: 'LineString',
       coordinates: arr.map(function(o) {
-        return [o.la, o.lo];
+        return [o.lo, o.la];
       })
     }
   };
@@ -132,6 +98,13 @@ var srv = http.createServer(function(req, res) {
   
   if (p === '/get') {
     resp = lines;
+
+    // filters
+    if ('accuracy' in q) { // accMin
+      v = parseFloat(q.accuracy);
+      f = new Function('o', [us, 'return o.ac <= ', v, ';'].join(''));
+      resp = resp.filter(f);
+    }
     if ('time' in q) { // tsMin, tsMax
       v = q.time.split(',');
       v = v.map(parseFloat);
@@ -158,18 +131,23 @@ var srv = http.createServer(function(req, res) {
       f = new Function('o', [us, 'var la2 = o.la; var lo2 = o.lo; var la1 = ', v[0] , ' * 0.017453292519943295; var lo1 = ', v[1], ' * 0.017453292519943295; la2 *= 0.017453292519943295; lo2 *= 0.017453292519943295; var dla = la2 - la1; var dlo = lo2 - lo1; var a = Math.pow( Math.sin(dla/2), 2) + Math.pow( Math.sin(dlo/2) * Math.cos(la1) * Math.cos(la2), 2); var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return c * 6373 <= ', v[2], ';'].join(''));
       resp = resp.filter(f);
     }
-    if ('geojson' in q) {
+
+    // transformations
+    if ('count' in q) {
+      resp = resp.length;
+    }
+    else if ('geojson' in q) {
       resp = features(
-        segmentByTime(resp, 10 * 60 * 1000)
-        .map(function(arr) {
-          var a = arr[0];
-          var b = arr[arr.length-1];
-          var title = [
-            new Date(a.ts).toISOString(),
-            new Date(b.ts).toISOString()
-          ].join(' - ');
-          return line(arr, title);
-        })
+          segmentByTime(resp, 10 * 60 * 1000)
+          .map(function (arr) {
+            var a = arr[0];
+            var b = arr[arr.length - 1];
+            var title = [
+              new Date(a.ts).toISOString(),
+              new Date(b.ts).toISOString()
+            ].join(' - ');
+            return line(arr, title);
+          })
       );
     }
   }
