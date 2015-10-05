@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css">
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
+
+        <style>
+            body {
+                padding: 0;
+                margin:  0;
+                font-family: sans-serif;
+            }
+
+            html, body, #map {
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="map"></div>
+
+        <script>
+            (function(w) {
+                'use strict';
+
+                /*global L:false*/
+
+                var QS = function(sel) {
+                    return document.querySelector(sel);
+                };
+
+                var pending = [];
+
+                var ajax = function(uri, body, cb) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open(body ? 'POST' : 'GET', uri, true);
+                    var cbInner = function() {
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            return cb(null, JSON.parse(xhr.response));
+                        }
+                        cb('error requesting ' + uri);
+                    };
+                    xhr.onload  = cbInner;
+                    xhr.onerror = cbInner;
+                    xhr.send(body ? body : null);
+                };
+
+                var map = L.map('map');
+
+                var osmMapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                });
+
+                osmMapnik.addTo(map);
+
+                //var line = L.polyline(positions, {color: 'red'}).addTo(map);
+
+                map.setView([38.7291, -9.1465], 18); // lisbon
+
+                ajax('http://stage.sl.pt:7744/get?geojson=1', null, function(err, o) {
+                    if (err) { return w.alert(err); }
+                    //var gArr = o.features.map(function(f) { return f.geometry; });
+                    var gArr = o;
+                    console.log(gArr);
+                    L.geoJson(gArr).addTo(map);
+                });
+            })(this);
+        </script>
+    </body>
+</html>
