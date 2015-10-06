@@ -8,21 +8,45 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
+        <script src="vendor/Bing.js"></script>
 
         <style>
+            html, body {
+                height: 100%;
+            }
+
             body {
                 padding: 0;
                 margin:  0;
                 font-family: sans-serif;
             }
 
-            html, body, #map {
-                height: 100%;
+            #map {
+                position: absolute;
+                width:  512px;
+                height: 512px;
+                margin-left: -256px;
+                margin-top:  -256px;
+                left:   50%;
+                top:    50%;
+                overflow: hidden;
+                -webkit-clip-path: url(#clip);
+                clip-path: url(#clip);
+                xtransform: rotate(0deg);
             }
+
         </style>
     </head>
 
     <body>
+        <svg>
+            <defs>
+                <clippath id="clip">
+                    <circle cx="256" cy="256" r="256"/>
+                </clippath>
+            </defs>
+        </svg>
+
         <div id="map"></div>
 
         <script>
@@ -31,6 +55,8 @@
 
                 //var SERVER = 'http://127.0.0.1:7744';
                 var SERVER = 'http://stage.sl.pt:7744';
+
+                var RAD2DEG = 180 / Math.PI;
 
                 /*global L:false*/
 
@@ -48,14 +74,26 @@
                     xhr.send(body ? body : null);
                 };
 
-                var map = L.map('map');
+                var map = L.map('map', {zoomControl:false});
 
-                L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
+                // https://msdn.microsoft.com/en-us/library/ff701716.aspx
+                // Aerial | AerialWithLabels | Birdseye | BirdseyeWithLabels | Road
+                new L.BingLayer('LfO3DMI9S6GnXD7d0WGs~bq2DRVkmIAzSOFdodzZLvw~Arx8dclDxmZA0Y38tHIJlJfnMbGq5GXeYmrGOUIbS2VLFzRKCK0Yv_bAl6oe-DOc', {type: 'Aerial'}).addTo(map);
+
+                /*L.tileLayer('http://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+                    attribution: '',
+                    subdomains: 'abcd',
+                    id: 'josepedrodias.ljaghn6a',
+                    accessToken: 'pk.eyJ1Ijoiam9zZXBlZHJvZGlhcyIsImEiOiJaWjFRZWNZIn0.xrONp5eka_l3Ky8staCR4g'
+                }).addTo(map);*/
+
+                /*L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
                     type: 'map',
                     ext: 'jpg',
-                    attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    attribution: '',
+                    //attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                     subdomains: '1234'
-                }).addTo(map);
+                }).addTo(map);*/
 
                 /*L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
@@ -66,9 +104,70 @@
 
                 map.setView([38.7291, -9.1465], 18); // lisbon
 
-                ajax(SERVER + '/get?accuracy=12&time=1444003200000,1444089600000&simplify=0.0001&geojson=1', null, function(err, o) {
+                var maxPositions = 30;
+                var positions = [];
+
+                var line = L.polyline(positions, {color: 'purple'}).addTo(map);
+
+                var pointsLeft;
+
+                var mapEl = document.querySelector('#map');
+
+                var angles = [];
+
+                var onPoint = function(o) {
+                    var pair = [o.la, o.lo];
+                    map.setView(pair);
+                    positions.unshift(pair);
+                    if (positions.length >= maxPositions) {
+                        positions.pop();
+                    }
+                    line.setLatLngs(positions);
+
+                    var l = positions.length - 1;
+                    if (l > 1) {
+                        var a = positions[0];
+                        var b = positions[l];
+                        var ang = Math.atan2(a[1] - b[1], a[0] - b[0]) * RAD2DEG;
+                        angles.unshift(ang);
+                        if (angles.length > 4) { angles.pop(); }
+                        ang = angles.reduce(function(p, c) { return p + c; }) / angles.length;
+                        mapEl.style.transform = ['rotate(-', (ang).toFixed(2), 'deg)'].join('');
+                    }
+                };
+
+                var raf = window.requestAnimationFrame     ||
+                        window.webkitRequestAnimationFrame ||
+                        window.mozRequestAnimationFrame;
+
+                var t0;
+                var speed = 15;
+
+                var onFrame = function(t) {
+                    raf(onFrame);
+                    var o = pointsLeft[0];
+                    if (o && o.ts <= t0 + t*speed) {
+                        pointsLeft.shift();
+                        onPoint(o);
+                    }
+                    else if (o) {
+                        var dt = o.ts - t0 - t*speed;
+                        if (dt > 800) { t0 += dt - 600; }
+                        //console.log( dt.toFixed(0) );
+                    }
+                };
+
+                /*ajax(SERVER + '/get?accuracy=12&time=1444003200000,1444089600000&simplify=0.0001&geojson=1', null, function(err, o) {
                     if (err) { return w.alert(err); }
                     L.geoJson(o).addTo(map);
+                });*/
+
+                ajax(SERVER + '/get?accuracy=12&time=1444003200000,1444089600000&simplify=0.0001', null, function(err, o) {
+                    if (err) { return w.alert(err); }
+                    //L.geoJson(o).addTo(map);
+                    pointsLeft = o;
+                    t0 = o[0].ts;
+                    onFrame();
                 });
             })(this);
         </script>
