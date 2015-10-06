@@ -83,13 +83,38 @@ aids in creating get requests with filters and transforms.
 
 ## TODO
 
-* server
+* client (recorder):
+    * encapsulate map view ops in single file (ajax, map rotation and 2 layouts, line of recent positions)
+    * 2 buttons
+        * toggle gps
+        * toggle recording
+    * state
+        * time since last gps report -> is gps down?
+        * time since last precise report -> indoors?
+        * speed estimate?
+        * hide lat, lon?
+    * config dialog
+        * min distance from last reading (number)
+        * min precision (number)
+        * server (string)
+        * map tiles (bing, osm, mapbox, etc)
+    * how disable sleep?!
+    * providers
+        * gps
+        * remote live (websockets endpoint)
+        * remote recorded (current /puts) - options: speed, max gap (to reduce inactive times)
+    * client importers in dedicated page
+        * kml and gpx
+        
+* client (watch)
+    * reuse structure from recorder
+    * config dialog
+        * server (string)
+        * query (window.prompt)
+        * map tiles
+    
+* server:
+    * how to support large historic dataset? segment by day?
     * optimize dist with prior internal bound
-* viewer
-    * allow drawing restrictions such a bounds, radius and a timeline UI.
-    * playback positions instead of drawing them
-* client
-    * if rec is off, geo should be off too?
-    * request screen not to go to sleep? how?
-
-
+    * summary transformation
+    * live endpoint in websockets
