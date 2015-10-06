@@ -3,58 +3,18 @@
     <head>
         <meta charset="utf-8">
         
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="viewport" content="width=512, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css">
+        <link rel="stylesheet" href="client.css">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
-    
-        <style>
-            body {
-                padding: 0;
-                margin:  0;
-                font-family: sans-serif;
-            }
-
-            html, body, #map {
-                height: 100%;
-            }
-
-            #legend {
-                position: absolute;
-                left:   0.5em;
-                bottom: 0.5em;
-                display: inline-block;
-                background-color: rgba(255, 255, 255, 0.5);
-                padding: 0.5em;
-            }
-
-            #legend p {
-                margin: 0;
-            }
-
-            #legend label {
-                display: inline-block;
-                font-weight: bold;
-                width: 3em;
-            }
-
-            #record {
-                position: absolute;
-                right: 0.5em;
-                top: 0.5em;
-                background-color: #7A7;
-                padding: 0.5em;
-            }
-
-            #record.on {
-                background-color: #A77;
-            }
-        </style>
+        <script src="vendor/Bing.js"></script>
+        <script src="coreClient.js"></script>
     </head>
 
     <body>
-        <div id="map"></div>
+        <div id="map" class="regular"></div>
         
         <div id="record">REC</div>
         

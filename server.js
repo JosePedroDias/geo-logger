@@ -61,6 +61,23 @@ var features = function(feats) {
     };
 };
 
+var units = {
+    ''  : 1,
+    s   : 1000,
+    min : 1000 * 60,
+    h   : 1000 * 60 * 60,
+    day : 1000 * 60 * 60 * 24
+};
+
+var parseDuration = function(s, defaultValue) {
+    var m = (/([0-9]*(\.([0-9]*))?)([a-z]+)/).exec(s);
+    if (!m) { return defaultValue; }
+    var num = parseFloat(m[1]);
+    var mult = units[ m[4] ];
+    if (!mult) { return defaultValue; }
+    return mult * num;
+};
+
 
 
 try {
@@ -143,8 +160,9 @@ var srv = http.createServer(function(req, res) {
             resp = resp.length;
         }
         else if ('geojson' in q) {
+            v = parseDuration(q.geojson, 10 * 60 * 1000); // 10min default
             resp = features(
-                segmentByTime(resp, 10 * 60 * 1000)
+                segmentByTime(resp, v)
                     .map(function (arr) {
                         var a = arr[0];
                         var b = arr[arr.length - 1];
@@ -155,6 +173,18 @@ var srv = http.createServer(function(req, res) {
                         return line(arr, title);
                     })
             );
+        }
+        else if ('summary' in q) {
+            v = parseDuration(q.summary, 10 * 60 * 1000); // 10min default
+            resp = segmentByTime(resp, v)
+                .map(function (arr) {
+                    var l = arr.length;
+                    return {
+                        start : arr[0].ts,
+                        end   : arr[l-1].ts,
+                        events: l
+                    };
+                });
         }
     }
     else if (p === '/zero') {

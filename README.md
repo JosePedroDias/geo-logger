@@ -37,11 +37,16 @@ GET `/get?bounds=-9.2513,-9.2147,38.6907,38.7115`
 
 #### transforms (only one at most)
 
-as geoJSON lines for usage in [leaflet](http://leafletjs.com/), [geojson.io](http://geojson.io/), etc.  
-GET `/get?geojson=1`
-
 returns count instead of the items themselves  
 GET `/get?count=1`
+
+as geoJSON lines for usage in [leaflet](http://leafletjs.com/), [geojson.io](http://geojson.io/), etc.  
+the argument is the segmentation criteria for different lines. syntax: `<float><s|min|h|day>`  
+GET `/get?geojson=10min`
+
+returns summary instead of the items themselves (summary is an array of clusters of events, each having start ts, end ts and count of events)
+the argument is the segmentation criteria for different cluster items. syntax: `<float><s|min|h|day>`  
+GET `/get?summary=10min`
 
 
 ### put/post
@@ -116,5 +121,4 @@ aids in creating get requests with filters and transforms.
 * server:
     * how to support large historic dataset? segment by day?
     * optimize dist with prior internal bound
-    * summary transformation
     * live endpoint in websockets

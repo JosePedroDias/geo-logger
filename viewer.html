@@ -3,39 +3,14 @@
     <head>
         <meta charset="utf-8">
 
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="viewport" content="width=512, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css">
+        <link rel="stylesheet" href="client.css">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
         <script src="vendor/Bing.js"></script>
-
-        <style>
-            html, body {
-                height: 100%;
-            }
-
-            body {
-                padding: 0;
-                margin:  0;
-                font-family: sans-serif;
-            }
-
-            #map {
-                position: absolute;
-                width:  512px;
-                height: 512px;
-                margin-left: -256px;
-                margin-top:  -256px;
-                left:   50%;
-                top:    50%;
-                overflow: hidden;
-                -webkit-clip-path: url(#clip);
-                clip-path: url(#clip);
-                xtransform: rotate(0deg);
-            }
-
-        </style>
+        <script src="coreClient.js"></script>
     </head>
 
     <body>
@@ -47,7 +22,7 @@
             </defs>
         </svg>
 
-        <div id="map"></div>
+        <div id="map" class="round"></div>
 
         <script>
             (function(w) {

@@ -1,0 +1,67 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    padding: 0;
+    margin:  0;
+    font-family: sans-serif;
+    overflow: hidden;
+}
+
+
+
+#map.round {
+    position: absolute;
+    width:  512px;
+    height: 512px;
+    margin-left: -256px;
+    margin-top:  -256px;
+    left:   50%;
+    top:    50%;
+    overflow: hidden;
+    -webkit-clip-path: url(#clip);
+    clip-path: url(#clip);
+    /*transform: rotate(0deg);*/
+}
+
+#map.regular {
+    height: 100%;
+}
+
+.leaflet-control-attribution {
+    display: none;
+}
+
+
+
+#legend {
+    position: absolute;
+    left:   0.5em;
+    bottom: 0.5em;
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 0.5em;
+}
+
+#legend p {
+    margin: 0;
+}
+
+#legend label {
+    display: inline-block;
+    font-weight: bold;
+    width: 3em;
+}
+
+#record {
+    position: absolute;
+    right: 0.5em;
+    top: 0.5em;
+    background-color: #7A7;
+    padding: 0.5em;
+}
+
+#record.on {
+    background-color: #A77;
+}
