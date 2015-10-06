@@ -5,7 +5,9 @@
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-        <title>get wizard</title>
+        <title>query wizard</title>
+
+        <script src="coreClient.js"></script>
 
         <style>
             body {
@@ -18,10 +20,18 @@
                 margin-bottom: 0.5em;
             }
 
+            .mega-block-1 .block { background-color: #DFD; }
+            .mega-block-2 .block { background-color: #DDF; }
+
             .block label {
                 display: inline-block;
-                width: 4em;
+                width: 8em;
                 font-weight: bold;
+            }
+
+            input[type=number],
+            input[type=date] {
+                text-align: right;
             }
 
             h2, h3 {
@@ -31,73 +41,97 @@
     </head>
 
     <body>
-        <h1>get form</h1>
+        <h1>query wizard</h1>
 
 
 
-        <h2>filters</h2>
+        <div class="mega-block-1">
+            <h2>filters</h2>
 
-        <div class="block accuracy-filter">
-            <h3>accuracy</h3>
+            <div class="block accuracy-filter">
+                <h3>accuracy</h3>
 
-            <label>min</label> <input class="acc" type="number" value=""> m
-        </div>
+                <label>min</label> <input class="acc" type="number" value=""> m
+            </div>
 
-        <div class="block time-filter">
-            <h3>time</h3>
+            <div class="block time-filter">
+                <h3>time</h3>
 
-            <label>from</label> <input class="from-d" type="date" value=""> <input class="from-t" type="time" value=""> <br/>
-            <label>to</label>   <input class="to-d"   type="date" value=""> <input class="to-t"   type="time" value="">
-        </div>
+                <label>from</label> <input class="from-d" type="date" value=""> <input class="from-t" type="time" value=""> <br/>
+                <label>to</label>   <input class="to-d"   type="date" value=""> <input class="to-t"   type="time" value="">
+            </div>
 
-        <div class="block simplify-filter">
-            <h3>simplify</h3>
+            <div class="block simplify-filter">
+                <h3>simplify</h3>
 
-            <label>tolerance</label> <input class="simplify" type="number"> ex: (0.0001)
-        </div>
+                <label>tolerance</label> <input class="simplify" type="number"> ex: (0.0001)
+            </div>
 
-        <div class="block bounds-filter">
-            <h3>bounds</h3>
+            <div class="block bounds-filter">
+                <h3>bounds</h3>
 
-            <label>la 1</label> <input class="la1" type="number" value=""> <br/>
-            <label>lo 1</label> <input class="lo1" type="number" value=""> <br/>
-            <label>la 2</label> <input class="la2" type="number" value=""> <br/>
-            <label>lo 2</label> <input class="lo2" type="number" value="">
-        </div>
+                <label>la 1</label> <input class="la1" type="number" value=""> <br/>
+                <label>lo 1</label> <input class="lo1" type="number" value=""> <br/>
+                <label>la 2</label> <input class="la2" type="number" value=""> <br/>
+                <label>lo 2</label> <input class="lo2" type="number" value="">
+            </div>
 
-        <div class="block dist-filter">
-            <h3>dist</h3>
+            <div class="block dist-filter">
+                <h3>dist</h3>
 
-            <label>la</label>     <input class="la"     type="number" value=""> <br/>
-            <label>lo</label>     <input class="lo"     type="number" value=""> <br/>
-            <label>radius</label> <input class="radius" type="number" value=""> Km
-        </div>
-
-
-
-        <h2>transformations</h2>
-
-        <div class="block noop-trans">
-            <h3>noop</h3>
-
-            <input name="trans" type="radio" value="" checked>
-        </div>
-
-        <div class="block count-trans">
-            <h3>count</h3>
-
-            <input name="trans" type="radio" value="count">
-        </div>
-
-        <div class="block geojson-trans">
-            <h3>geojson</h3>
-
-            <input name="trans" type="radio" value="geojson">
+                <label>la</label>     <input class="la"     type="number" value=""> <br/>
+                <label>lo</label>     <input class="lo"     type="number" value=""> <br/>
+                <label>radius</label> <input class="radius" type="number" value=""> Km
+            </div>
         </div>
 
 
 
-        <button>update</button>
+        <div class="mega-block-2">
+            <h2>transformations</h2>
+
+            <div class="block">
+                <label>segmentation</label>
+                <input type="number" class="segmentation-number" value="10">
+                <select class="segmentation-unit">
+                    <option value="s">seconds</option>
+                    <option value="min" selected>minutes</option>
+                    <option value="h">hours</option>
+                    <option value="day">days</option>
+                </select>
+                (this is used on both the geojson and summary transformations)
+            </div>
+
+            <div class="block noop-trans">
+                <h3>noop</h3>
+
+                <input name="trans" type="radio" value="" checked>
+            </div>
+
+            <div class="block count-trans">
+                <h3>count</h3>
+
+                <input name="trans" type="radio" value="count">
+            </div>
+
+            <div class="block geojson-trans">
+                <h3>geojson</h3>
+
+                <input name="trans" type="radio" value="geojson">
+            </div>
+
+            <div class="block summary-trans">
+                <h3>summary</h3>
+
+                <input name="trans" type="radio" value="summary">
+            </div>
+        </div>
+
+
+
+
+        <button class="get-as-string-btn">get as string</button>
+        <button class="update-link-btn"  >update link</button>
 
         <a href="" target="_blank"><pre>/get</pre></a>
 
@@ -106,9 +140,6 @@
         <script>
             (function(w) {
                 'use strict';
-
-                //var SERVER = 'http://127.0.0.1:7744';
-                var SERVER = 'http://stage.sl.pt:7744';
 
 
 
@@ -182,12 +213,18 @@
                     var op;
                     if      ( QS(  '.count-trans input').checked ) { op = 'count'; }
                     else if ( QS('.geojson-trans input').checked ) { op = 'geojson'; }
+                    else if ( QS('.summary-trans input').checked ) { op = 'summary'; }
                     return op;
                 };
 
+                var getSegmentation = function() {
+                    var number = QS('.segmentation-number').value;
+                    var unit = QS('.segmentation-unit').value;
+                    return number + unit;
+                };
 
 
-                QS('button').addEventListener('click', function(ev) {
+                var generateUrl = function(getFullUrl) {
                     var result = [];
 
                     var accuracy = accuracyFilter();
@@ -206,12 +243,24 @@
                     if (dist) { result.push('dist=' + dist); }
 
                     var trans = applyTrans();
-                    if (trans) { result.push(trans + '=1'); }
+                    if (trans) { result.push(trans + '=' + getSegmentation()); }
 
-                    result = SERVER + '/get?' + result.join('&');
+                    if (!getFullUrl) {
+                        return result.join('&');
+                    }
 
-                    QS('pre').firstChild.nodeValue = result;
-                    QS('a').href = result;
+                    return SERVER + '/get?' + result.join('&');
+                };
+
+                QS('.get-as-string-btn').addEventListener('click', function() {
+                    var url = generateUrl();
+                    w.prompt('copy this:', url);
+                });
+
+                QS('.update-link-btn').addEventListener('click', function() {
+                    var url = generateUrl(true);
+                    QS('pre').firstChild.nodeValue = url;
+                    QS('a').href = url;
                 });
 
             })(this);

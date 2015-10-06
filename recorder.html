@@ -5,6 +5,8 @@
         
         <meta name="viewport" content="width=512, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
+        <title>recorder</title>
+
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css">
         <link rel="stylesheet" href="client.css">
 
@@ -28,30 +30,15 @@
         (function(w) {
             'use strict';
 
-            //var SERVER = 'http://127.0.0.1:7744';
-            var SERVER = 'http://stage.sl.pt:7744';
-
             /*global L:false*/
+
+            var GL = w.geoLogger;
 
             var QS = function(sel) {
                 return document.querySelector(sel);
             };
 
             var pending = [];
-
-            var ajax = function(uri, body, cb) {
-                var xhr = new XMLHttpRequest();
-                xhr.open(body ? 'POST' : 'GET', uri, true);
-                var cbInner = function() {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        return cb(null, JSON.parse(xhr.response));
-                    }
-                    cb('error requesting ' + uri);
-                };
-                xhr.onload  = cbInner;
-                xhr.onerror = cbInner;
-                xhr.send(body ? body : null);
-            };
 
             var latEl = QS('#lat');
             var lonEl = QS('#lon');
@@ -65,17 +52,7 @@
 
             var map = L.map('map');
 
-            L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
-                type: 'map',
-                ext: 'jpg',
-                attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                subdomains: '1234'
-            }).addTo(map);
-
-            /*L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-             maxZoom: 19,
-             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-             })addTo(map);*/
+            GL.getTileLayer('mapbox-roads').addTo(map);
 
             var line = L.polyline(positions, {color: 'purple'}).addTo(map);
 
@@ -142,7 +119,7 @@
                 if (pending.length === 0) { return; }
                 var payload = JSON.stringify(pending);
                 pending = [];
-                ajax(
+                GL.ajax(
                     SERVER + '/puts',
                     payload,
                     function(/*err, out*/) {

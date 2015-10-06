@@ -5,6 +5,8 @@
 
         <meta name="viewport" content="width=512, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
+        <title>viewer</title>
+
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css">
         <link rel="stylesheet" href="client.css">
 
@@ -28,54 +30,15 @@
             (function(w) {
                 'use strict';
 
-                //var SERVER = 'http://127.0.0.1:7744';
-                var SERVER = 'http://stage.sl.pt:7744';
+                /*global L:false*/
+
+                var GL = w.geoLogger;
 
                 var RAD2DEG = 180 / Math.PI;
 
-                /*global L:false*/
-
-                var ajax = function(uri, body, cb) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open(body ? 'POST' : 'GET', uri, true);
-                    var cbInner = function() {
-                        if (xhr.readyState === 4 && xhr.status === 200) {
-                            return cb(null, JSON.parse(xhr.response));
-                        }
-                        cb('error requesting ' + uri);
-                    };
-                    xhr.onload  = cbInner;
-                    xhr.onerror = cbInner;
-                    xhr.send(body ? body : null);
-                };
-
                 var map = L.map('map', {zoomControl:false});
 
-                // https://msdn.microsoft.com/en-us/library/ff701716.aspx
-                // Aerial | AerialWithLabels | Birdseye | BirdseyeWithLabels | Road
-                new L.BingLayer('LfO3DMI9S6GnXD7d0WGs~bq2DRVkmIAzSOFdodzZLvw~Arx8dclDxmZA0Y38tHIJlJfnMbGq5GXeYmrGOUIbS2VLFzRKCK0Yv_bAl6oe-DOc', {type: 'Aerial'}).addTo(map);
-
-                /*L.tileLayer('http://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-                    attribution: '',
-                    subdomains: 'abcd',
-                    id: 'josepedrodias.ljaghn6a',
-                    accessToken: 'pk.eyJ1Ijoiam9zZXBlZHJvZGlhcyIsImEiOiJaWjFRZWNZIn0.xrONp5eka_l3Ky8staCR4g'
-                }).addTo(map);*/
-
-                /*L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
-                    type: 'map',
-                    ext: 'jpg',
-                    attribution: '',
-                    //attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                    subdomains: '1234'
-                }).addTo(map);*/
-
-                /*L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                })addTo(map);*/
-
-                //var line = L.polyline(positions, {color: 'red'}).addTo(map);
+                GL.getTileLayer('bing-aerial').addTo(map);
 
                 map.setView([38.7291, -9.1465], 18); // lisbon
 
@@ -132,12 +95,12 @@
                     }
                 };
 
-                /*ajax(SERVER + '/get?accuracy=12&time=1444003200000,1444089600000&simplify=0.0001&geojson=1', null, function(err, o) {
+                /*GL.ajax(SERVER + '/get?accuracy=12&time=1444003200000,1444089600000&simplify=0.0001&geojson=1', null, function(err, o) {
                     if (err) { return w.alert(err); }
                     L.geoJson(o).addTo(map);
                 });*/
 
-                ajax(SERVER + '/get?accuracy=12&time=1444003200000,1444089600000&simplify=0.0001', null, function(err, o) {
+                GL.ajax(SERVER + '/get?accuracy=12&time=1444003200000,1444089600000&simplify=0.0001', null, function(err, o) {
                     if (err) { return w.alert(err); }
                     //L.geoJson(o).addTo(map);
                     pointsLeft = o;
