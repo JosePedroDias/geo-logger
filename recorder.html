@@ -3,12 +3,13 @@
     <head>
         <meta charset="utf-8">
         
-        <meta name="viewport" content="width=512, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
         <title>recorder</title>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css">
-        <link rel="stylesheet" href="client.css">
+        <link rel="stylesheet" href="common.css">
+        <link rel="stylesheet" href="recorder.css">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
         <script src="vendor/Bing.js"></script>
@@ -16,9 +17,23 @@
     </head>
 
     <body>
+        <div id="config-dialog" class="flex-list">
+            <div class="flex-list-item">
+                <h1>configuration</h1>
+            </div>
+            <div class="flex-list-item">
+                <label>min accuracy</label>
+                <input type="number" class="min-acc" value="12">
+            </div>
+            <div class="flex-list-item">
+                <button class="return-btn btn">return</button>
+            </div>
+        </div>
+
         <div id="map" class="regular"></div>
         
-        <div id="record">REC</div>
+        <button id="record" class="btn">REC</button>
+        <button id="config" class="btn">CFG</button>
         
         <div id="legend">
             <p><label>lat:</label> <span id="lat">_</span></p>
@@ -44,7 +59,9 @@
             var lonEl = QS('#lon');
             var accEl = QS('#acc');
             var tsEl  = QS('#ts');
+
             var recEl = QS('#record');
+            var cfgEl = QS('#config');
 
             var isRecording = false;
             var maxPositions = 30;
@@ -113,6 +130,14 @@
                 isRecording = !isRecording;
                 recEl.classList.toggle('on');
                 recEl.firstChild.nodeValue = (isRecording ? 'STOP' : 'REC');
+            });
+
+            cfgEl.addEventListener('click', function() {
+                document.body.classList.toggle('in-config');
+            });
+
+            QS('#config-dialog .return-btn').addEventListener('click', function() {
+                document.body.classList.toggle('in-config');
             });
 
             setInterval(function() {

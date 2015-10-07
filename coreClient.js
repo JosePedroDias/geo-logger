@@ -27,7 +27,8 @@ var SERVER = 'http://stage.sl.pt:7744';
             return new L.BingLayer(
                 'LfO3DMI9S6GnXD7d0WGs~bq2DRVkmIAzSOFdodzZLvw~Arx8dclDxmZA0Y38tHIJlJfnMbGq5GXeYmrGOUIbS2VLFzRKCK0Yv_bAl6oe-DOc',
                 {
-                    type : 'Aerial'
+                    type        : 'Aerial',
+                    reuseTiles  : true
                 }
             );
         }
@@ -38,24 +39,27 @@ var SERVER = 'http://stage.sl.pt:7744';
                     attribution : 'Imagery from <a href="http://mapbox.com/about/maps/">MapBox</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                     subdomains  : 'abcd',
                     id          : 'josepedrodias.ljaghn6a',
-                    accessToken : 'pk.eyJ1Ijoiam9zZXBlZHJvZGlhcyIsImEiOiJaWjFRZWNZIn0.xrONp5eka_l3Ky8staCR4g'
+                    accessToken : 'pk.eyJ1Ijoiam9zZXBlZHJvZGlhcyIsImEiOiJaWjFRZWNZIn0.xrONp5eka_l3Ky8staCR4g',
+                    reuseTiles  : true
                 }
             );
         }
         else if (name === 'mapquest-map') {
-            L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
+            return L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
                 type        : 'map',
                 ext         : 'jpg',
                 attribution : 'Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                subdomains  : '1234'
-            })
+                subdomains  : '1234',
+                reuseTiles  : true
+            });
         }
         else {
             return L.tileLayer(
-                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 {
                     maxZoom     : 19,
-                    attribution : '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    attribution : '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    reuseTiles  : true
                 }
             );
         }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        <title>importer</title>
+
+        <script src="coreClient.js"></script>
+        <script src="importer.js"></script>
+
+        <style>
+            body {
+                font-family: sans-serif;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>importer</h1>
+
+        <input type="file" class="in-file">
+
+        <script>
+            var inFileEl = document.querySelector('.in-file');
+            getDataFromFile(inFileEl, function(err, arr) {
+                if (err) { return window.alert(err); }
+
+                document.body.innerHTML += '<br/><br/>Found ' + arr.length + ' tracks.';
+
+                // flatten tracks
+                var readings = [];
+                arr.forEach(function(items) {
+                    readings = readings.concat(items);
+                });
+
+                document.body.innerHTML += '<br/>Found ' + readings.length + ' readings.';
+                document.body.innerHTML += '<br/>Timestamps between ' + readings[0].ts + ' and ' + readings[readings.length-1].ts + '.';
+
+                // submit them
+                console.log(readings);
+                geoLogger.ajax(SERVER + '/puts', JSON.stringify(readings), function(err, o) {
+                    console.log(err, o);
+                });
+            });
+        </script>
+    </body>
+</html>

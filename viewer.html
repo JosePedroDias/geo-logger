@@ -3,12 +3,13 @@
     <head>
         <meta charset="utf-8">
 
-        <meta name="viewport" content="width=512, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
         <title>viewer</title>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.css">
-        <link rel="stylesheet" href="client.css">
+        <link rel="stylesheet" href="common.css">
+        <link rel="stylesheet" href="viewer.css">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
         <script src="vendor/Bing.js"></script>
@@ -16,15 +17,30 @@
     </head>
 
     <body>
-        <svg>
+        <svg> <!-- used in the #map.round css -->
             <defs>
                 <clippath id="clip">
-                    <circle cx="256" cy="256" r="256"/>
+                    <circle id="circle" cx="50%" cy="50%" r="50%"/>
                 </clippath>
             </defs>
         </svg>
 
+        <div id="config-dialog" class="flex-list">
+            <div class="flex-list-item">
+                <h1>configuration</h1>
+            </div>
+            <div class="flex-list-item">
+                <label>query</label>
+                <button class="edit-query-btn btn">change</button>
+            </div>
+            <div class="flex-list-item">
+                <button class="return-btn btn">return</button>
+            </div>
+        </div>
+
         <div id="map" class="round"></div>
+
+        <button id="config" class="btn">CFG</button>
 
         <script>
             (function(w) {
@@ -34,11 +50,15 @@
 
                 var GL = w.geoLogger;
 
+                var QS = function(sel) {
+                    return document.querySelector(sel);
+                };
+
                 var RAD2DEG = 180 / Math.PI;
 
                 var map = L.map('map', {zoomControl:false});
 
-                GL.getTileLayer('bing-aerial').addTo(map);
+                GL.getTileLayer('osm').addTo(map); // mapquest-map
 
                 map.setView([38.7291, -9.1465], 18); // lisbon
 
@@ -55,6 +75,7 @@
 
                 var onPoint = function(o) {
                     var pair = [o.la, o.lo];
+                    //console.log(o.la, o.lo);
                     map.setView(pair);
                     positions.unshift(pair);
                     if (positions.length >= maxPositions) {
@@ -79,7 +100,7 @@
                         window.mozRequestAnimationFrame;
 
                 var t0;
-                var speed = 15;
+                var speed = 8;//15;
 
                 var onFrame = function(t) {
                     raf(onFrame);
@@ -95,18 +116,59 @@
                     }
                 };
 
-                /*GL.ajax(SERVER + '/get?accuracy=12&time=1444003200000,1444089600000&simplify=0.0001&geojson=1', null, function(err, o) {
+                //var query = 'accuracy=12&time=1444003200000,1444089600000&simplify=0.0001';
+                var query = 'simplify=0.0001';
+
+                /*GL.ajax(SERVER + '/get?' + query + '&geojson=1', null, function(err, o) {
                     if (err) { return w.alert(err); }
                     L.geoJson(o).addTo(map);
                 });*/
 
-                GL.ajax(SERVER + '/get?accuracy=12&time=1444003200000,1444089600000&simplify=0.0001', null, function(err, o) {
+                GL.ajax(SERVER + '/get?' + query, null, function(err, o) {
                     if (err) { return w.alert(err); }
-                    //L.geoJson(o).addTo(map);
+                    //console.log(o);
                     pointsLeft = o;
                     t0 = o[0].ts;
                     onFrame();
                 });
+
+
+
+                QS('#config').addEventListener('click', function() {
+                    document.body.classList.toggle('in-config');
+                });
+
+                QS('#config-dialog .edit-query-btn').addEventListener('click', function() {
+                    w.prompt('query string:', 'cenas e coisas');
+                });
+
+                QS('#config-dialog .return-btn').addEventListener('click', function() {
+                    document.body.classList.toggle('in-config');
+                });
+
+
+
+                var onResize = function() {
+                    var W = window.innerWidth;
+                    var H = window.innerHeight;
+                    var d = Math.min(W, H);
+                    var d2 = d/2;
+                    var mapEl = document.querySelector('#map');
+
+                    var s = mapEl.style;
+                    s.width  = d + 'px';
+                    s.height = d + 'px';
+                    s.marginLeft = -d2 + 'px';
+                    s.marginTop  = -d2 + 'px';
+
+                    var c = document.querySelector('circle');
+                    c.setAttribute('cx', d2);
+                    c.setAttribute('cy', d2);
+                    c.setAttribute('r', d2);
+                };
+                onResize();
+                window.addEventListener('resize', onResize);
+
             })(this);
         </script>
     </body>

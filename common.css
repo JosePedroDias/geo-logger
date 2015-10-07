@@ -1,0 +1,88 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    padding: 0;
+    margin:  0;
+    font-family: sans-serif;
+    overflow: hidden;
+}
+
+
+
+#map.round {
+    position: absolute;
+    /*width:  512px;
+    height: 512px;
+    margin-left: -256px;
+    margin-top:  -256px;*/
+    left:   50%;
+    top:    50%;
+    overflow: hidden;
+    -webkit-clip-path: url(#clip);
+    clip-path: url(#clip);
+    /*transform: rotate(0deg);*/
+}
+
+#map.regular {
+    height: 100%;
+}
+
+.leaflet-control-attribution {
+    display: none;
+}
+
+#map {
+    transition: 1s transform linear;
+}
+
+
+
+.flex-list {
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+
+    -webkit-justify-content: space-around;
+    -ms-flex-pack: distribute;
+    justify-content: space-around;
+
+    -webkit-align-content: stretch;
+    -ms-flex-line-pack: stretch;
+    align-content: stretch;
+    -webkit-align-items: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+}
+
+.flex-list-item {
+    /* -webkit-order: 0;
+    -ms-flex-order: 0;
+             order: 0;*/
+
+    /*-webkit-flex: 0 1 auto;
+        -ms-flex: 0 1 auto;
+            flex: 0 1 auto;*/
+
+    /* -webkit-align-self: auto;
+    -ms-flex-item-align: auto;
+             align-self: auto;*/
+}
+
+
+
+.btn {
+    font-size: 1.1em;
+    border-radius: 0.5em;
+    padding: 0.5em 0.75em;
+    border: 0;
+    font-weight: bold;
+    color: #FFF;
+    background-color: #406fa9;
+    text-shadow: 0 0 0.2em rgba(0, 0, 0, 0.75);
+}

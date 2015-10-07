@@ -67,11 +67,11 @@ into our simple JSON format `{la, lo, ts}`.
 
 ## pages
 
-### client
+### recorder
 
 example client using leaflet to display the map
 and `navigator.geolocation` to fetch GPS readings.  
-[demo](http://rawgit.com/JosePedroDias/geo-logger/master/client.html)
+[demo](http://rawgit.com/JosePedroDias/geo-logger/master/recorder.html)
 
 
 ### viewer
@@ -80,15 +80,21 @@ displays data recorded earlier as geojson (uses the HTTP interface)
 [demo](http://rawgit.com/JosePedroDias/geo-logger/master/viewer.html)
 
 
-### getForm
+### queryWizard
 
 aids in creating get requests with filters and transforms.  
-[demo](http://rawgit.com/JosePedroDias/geo-logger/master/getForm.html)
+[demo](http://rawgit.com/JosePedroDias/geo-logger/master/queryWizard.html)
+
+
+### importer
+
+imports data from files. Formats currently supported: KML  
+[demo](http://rawgit.com/JosePedroDias/geo-logger/master/importer.html)
 
 
 ## TODO
 
-* client (recorder):
+* recorder:
     * encapsulate map view ops in single file (ajax, map rotation and 2 layouts, line of recent positions)
     * 2 buttons
         * toggle gps
@@ -108,10 +114,9 @@ aids in creating get requests with filters and transforms.
         * gps
         * remote live (websockets endpoint)
         * remote recorded (current /puts) - options: speed, max gap (to reduce inactive times)
-    * client importers in dedicated page
-        * kml and gpx
+    * client importer supporting GPX too
         
-* client (watch)
+* viewer:
     * reuse structure from recorder
     * config dialog
         * server (string)
@@ -119,6 +124,6 @@ aids in creating get requests with filters and transforms.
         * map tiles
     
 * server:
-    * how to support large historic dataset? segment by day?
+    * puts could receive an option to check duplicates (would use summary and ignore readings in found time intervals)
     * optimize dist with prior internal bound
     * live endpoint in websockets

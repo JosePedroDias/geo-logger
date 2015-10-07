@@ -1,0 +1,51 @@
+#config-dialog {
+    display: none;
+    position: absolute;
+    left: 0;
+    top:  0;
+    width:  100%;
+    height: 100%;
+}
+
+#config-dialog > div {
+    text-align: center;
+}
+
+#config-dialog label {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+#config-dialog input {
+    width: 5em;
+    border: 1px solid #AAA;
+    border-radius: 0.5em;
+    padding: 0.5em;
+    text-align: right;
+}
+
+
+
+.in-config #config,
+.in-config #map {
+    display: none;
+}
+
+.in-config #config-dialog {
+    display: -webkit-flex;
+    display:  -ms-flexbox;
+    display:         flex;
+}
+
+
+
+#config {
+    position: absolute;
+    right:   0.5em;
+    bottom:  0.5em;
+    background-color: #666;
+}
+
+.return-btn {
+    background-color: #666;
+}

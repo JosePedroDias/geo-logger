@@ -1,0 +1,82 @@
+#legend {
+    position: absolute;
+    left:   0.5em;
+    bottom: 0.5em;
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 0.5em;
+}
+
+#legend p {
+    margin: 0;
+}
+
+#legend label {
+    display: inline-block;
+    font-weight: bold;
+    width: 3em;
+}
+
+
+
+#config-dialog {
+    display: none;
+    height: 100%;
+}
+
+#config-dialog > div {
+    text-align: center;
+}
+
+#config-dialog label {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+#config-dialog input {
+    width: 5em;
+    border: 1px solid #AAA;
+    border-radius: 0.5em;
+    padding: 0.5em;
+    text-align: right;
+}
+
+
+.in-config #legend,
+.in-config #record,
+.in-config #config,
+.in-config #map {
+    display: none;
+}
+
+.in-config #config-dialog {
+    display: -webkit-flex;
+    display:  -ms-flexbox;
+    display:         flex;
+}
+
+
+
+#config {
+    position: absolute;
+    right:   0.5em;
+    bottom:  0.5em;
+    background-color: #666;
+}
+
+#record {
+    position: absolute;
+    right: 0.5em;
+    top: 0.5em;
+    background-color: #b12336;
+    width: 5em;
+}
+
+#record.on {
+    background-color: #dd0824;
+    box-shadow: #F00 0 0 1em, #F00 0 0 0.5em;
+}
+
+.return-btn {
+    background-color: #666;
+}
