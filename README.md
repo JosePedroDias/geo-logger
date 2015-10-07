@@ -96,18 +96,12 @@ imports data from files. Formats currently supported: KML
 
 * recorder:
     * encapsulate map view ops in single file (ajax, map rotation and 2 layouts, line of recent positions)
-    * 2 buttons
-        * toggle gps
-        * toggle recording
     * state
         * time since last gps report -> is gps down?
         * time since last precise report -> indoors?
         * speed estimate?
         * hide lat, lon?
     * config dialog
-        * min distance from last reading (number)
-        * min precision (number)
-        * server (string)
         * map tiles (bing, osm, mapbox, etc)
     * how disable sleep?!
     * providers
@@ -119,8 +113,6 @@ imports data from files. Formats currently supported: KML
 * viewer:
     * reuse structure from recorder
     * config dialog
-        * server (string)
-        * query (window.prompt)
         * map tiles
     
 * server:

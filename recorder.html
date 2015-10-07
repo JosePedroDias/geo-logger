@@ -13,22 +13,52 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
         <script src="vendor/Bing.js"></script>
+        <script src="store.js"></script>
         <script src="coreClient.js"></script>
     </head>
 
     <body>
+        <script>
+            // fetch state first
+            var store = getStore('GL');
+
+            var STATE = {
+                server          : store.get('server',          'http://stage.sl.pt:7744'),
+                minDistBtwReads : store.get('minDistBtwReads', 0.001),
+                minAccuracy     : store.get('minAccuracy',     12)
+            };
+        </script>
+
         <div id="config-dialog" class="flex-list">
             <div class="flex-list-item">
                 <h1>configuration</h1>
             </div>
+
+            <div class="flex-list-item">
+                <label>server</label>
+                <button class="edit-server-btn btn">change</button>
+            </div>
+            <div class="flex-list-item">
+                <label>min dist btw reads</label>
+                <input type="number" class="min-dist" value="" min="0" step="0.0001">
+            </div>
             <div class="flex-list-item">
                 <label>min accuracy</label>
-                <input type="number" class="min-acc" value="12">
+                <input type="number" class="min-acc" value="" min="1">
             </div>
+
             <div class="flex-list-item">
                 <button class="return-btn btn">return</button>
             </div>
         </div>
+
+        <script>
+            // fill default form values
+            document.querySelector('#config-dialog .min-dist').value = STATE.minDistBtwReads;
+            document.querySelector('#config-dialog .min-acc' ).value = STATE.minAccuracy;
+        </script>
+
+
 
         <div id="map" class="regular"></div>
         
@@ -41,118 +71,127 @@
             <p><label>acc:</label> <span id="acc">_</span></p>
             <p><label>ts:</label> <span id="ts">_</span></p>
         </div>
-    <script>
-        (function(w) {
-            'use strict';
 
-            /*global L:false*/
 
-            var GL = w.geoLogger;
 
-            var QS = function(sel) {
-                return document.querySelector(sel);
-            };
+        <script>
+            (function(w) {
+                'use strict';
 
-            var pending = [];
+                /*global L:false*/
 
-            var latEl = QS('#lat');
-            var lonEl = QS('#lon');
-            var accEl = QS('#acc');
-            var tsEl  = QS('#ts');
+                var GL = w.geoLogger;
 
-            var recEl = QS('#record');
-            var cfgEl = QS('#config');
+                var QS = function(sel) {
+                    return document.querySelector(sel);
+                };
 
-            var isRecording = false;
-            var maxPositions = 30;
-            var positions = [];
+                var pending = [];
 
-            var map = L.map('map');
+                var latEl = QS('#lat');
+                var lonEl = QS('#lon');
+                var accEl = QS('#acc');
+                var tsEl  = QS('#ts');
 
-            GL.getTileLayer('mapbox-roads').addTo(map);
+                var recEl = QS('#record');
+                var cfgEl = QS('#config');
 
-            var line = L.polyline(positions, {color: 'purple'}).addTo(map);
+                var isRecording = false;
+                var maxPositions = 30;
+                var positions = [];
 
-            map.setView([38.7291, -9.1465], 18); // lisbon
+                var map = L.map('map');
 
-            if (!('geolocation' in navigator)) {
-                return w.alert('no geolocation support!');
-            }
+                GL.getTileLayer('mapbox-roads').addTo(map);
 
-            var onPositionNew = function(gp) {
-                var lat = gp.coords.latitude;
-                var lon = gp.coords.longitude;
-                var acc = gp.coords.accuracy;
+                var line = L.polyline(positions, {color: 'purple'}).addTo(map);
 
-                if (acc > 12) { return; } // discards low res readings
+                map.setView([38.7291, -9.1465], 18); // lisbon
 
-                /*var alt = gp.coords.altitude;
-                var altAcc = gp.coords.altitudeAccuracy;*/
-                var ts = gp.timestamp;
-                var pair = [lat, lon];
-                //w.console.log(gp);
-                map.setView(pair);
-                latEl.firstChild.nodeValue = lat.toFixed(7);
-                lonEl.firstChild.nodeValue = lon.toFixed(7);
-                accEl.firstChild.nodeValue = acc.toFixed(1) + 'm';
-                tsEl.firstChild.nodeValue = new Date(ts).toTimeString().split(' ')[0];
-
-                positions.unshift(pair);
-                if (positions.length >= maxPositions) {
-                    positions.pop();
+                if (!('geolocation' in navigator)) {
+                    return w.alert('no geolocation support!');
                 }
-                line.setLatLngs(positions);
 
-                pending.push({
-                    ts : ts,
-                    la : lat,
-                    lo : lon,
-                    ac : Math.round(acc)/*,
-                    alt    : alt,
-                    altAcc : altAcc*/
-                });
-            };
+                var onPositionNew = function(gp) {
+                    var lat = gp.coords.latitude;
+                    var lon = gp.coords.longitude;
+                    var acc = gp.coords.accuracy;
 
-            var onPositionErr = function(err) {
-                w.alert(err);
-            };
+                    if (acc > STATE.minAccuracy) { return; } // discards low res readings
 
-            // https://developer.mozilla.org/en-US/docs/Web/API/PositionOptions
-            var geoOpts = {
-                enableHighAccuracy : true,
-                maximumAge         : 30000,
-                timeout            : 27000
-            };
+                    /*var alt = gp.coords.altitude;
+                    var altAcc = gp.coords.altitudeAccuracy;*/
+                    var ts = gp.timestamp;
+                    var pair = [lat, lon];
+                    //w.console.log(gp);
+                    map.setView(pair);
+                    latEl.firstChild.nodeValue = lat.toFixed(7);
+                    lonEl.firstChild.nodeValue = lon.toFixed(7);
+                    accEl.firstChild.nodeValue = acc.toFixed(1) + 'm';
+                    tsEl.firstChild.nodeValue = new Date(ts).toTimeString().split(' ')[0];
 
-            /*var watchId = */ navigator.geolocation.watchPosition(onPositionNew, onPositionErr, geoOpts);
-
-            recEl.addEventListener('click', function() {
-                isRecording = !isRecording;
-                recEl.classList.toggle('on');
-                recEl.firstChild.nodeValue = (isRecording ? 'STOP' : 'REC');
-            });
-
-            cfgEl.addEventListener('click', function() {
-                document.body.classList.toggle('in-config');
-            });
-
-            QS('#config-dialog .return-btn').addEventListener('click', function() {
-                document.body.classList.toggle('in-config');
-            });
-
-            setInterval(function() {
-                if (pending.length === 0) { return; }
-                var payload = JSON.stringify(pending);
-                pending = [];
-                GL.ajax(
-                    SERVER + '/puts',
-                    payload,
-                    function(/*err, out*/) {
+                    positions.unshift(pair);
+                    if (positions.length >= maxPositions) {
+                        positions.pop();
                     }
-                );
-            }, 20 * 1000);
+                    line.setLatLngs(positions);
 
-        })(this);
+                    pending.push({
+                        ts : ts,
+                        la : lat,
+                        lo : lon,
+                        ac : Math.round(acc)/*,
+                        alt    : alt,
+                        altAcc : altAcc*/
+                    });
+                };
+
+                var onPositionErr = function(err) {
+                    w.alert(err);
+                };
+
+                // https://developer.mozilla.org/en-US/docs/Web/API/PositionOptions
+                var geoOpts = {
+                    enableHighAccuracy : true,
+                    maximumAge         : 30000,
+                    timeout            : 27000
+                };
+
+                /*var watchId = */ navigator.geolocation.watchPosition(onPositionNew, onPositionErr, geoOpts);
+
+                recEl.addEventListener('click', function() {
+                    isRecording = !isRecording;
+                    recEl.classList.toggle('on');
+                    recEl.firstChild.nodeValue = (isRecording ? 'STOP' : 'REC');
+                });
+
+                cfgEl.addEventListener('click', function() {
+                    document.body.classList.toggle('in-config');
+                });
+
+                QS('#config-dialog .edit-server-btn').addEventListener('click', GL.handlePromptClickFactory(STATE, store, 'server', 'server:'));
+
+                QS('#config-dialog .min-dist').addEventListener('change',GL.handleNumericInputChangeFactory(STATE, store, 'minDistBtwReads'));
+
+                QS('#config-dialog .min-acc').addEventListener('change', GL.handleNumericInputChangeFactory(STATE, store, 'minAccuracy'));
+
+                QS('#config-dialog .return-btn').addEventListener('click', function() {
+                    document.body.classList.toggle('in-config');
+                });
+
+                setInterval(function() {
+                    if (pending.length === 0) { return; }
+                    var payload = JSON.stringify(pending);
+                    pending = [];
+                    GL.ajax(
+                        STATE.server + '/puts',
+                        payload,
+                        function(/*err, out*/) {
+                        }
+                    );
+                }, 20 * 1000);
+
+            })(this);
         </script>
     </body>
 </html>

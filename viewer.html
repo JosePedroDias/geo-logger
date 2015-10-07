@@ -13,6 +13,7 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
         <script src="vendor/Bing.js"></script>
+        <script src="store.js"></script>
         <script src="coreClient.js"></script>
     </head>
 
@@ -25,18 +26,52 @@
             </defs>
         </svg>
 
+        <script>
+            // fetch state first
+            var store = getStore('GL');
+
+            var STATE = {
+                server      : store.get('server',      'http://stage.sl.pt:7744'),
+                query       : store.get('query',       'simplify=0.0001'),
+                speed       : store.get('speed',       4),
+                maxEventGap : store.get('maxEventGap', 1000)
+            };
+        </script>
+
         <div id="config-dialog" class="flex-list">
             <div class="flex-list-item">
                 <h1>configuration</h1>
+            </div>
+
+            <div class="flex-list-item">
+                <label>server</label>
+                <button class="edit-server-btn btn">change</button>
             </div>
             <div class="flex-list-item">
                 <label>query</label>
                 <button class="edit-query-btn btn">change</button>
             </div>
             <div class="flex-list-item">
+                <label>speed</label>
+                <input class="speed" type="range" min="1" max="20" value="1"> x
+            </div>
+            <div class="flex-list-item">
+                <label>max event gap</label>
+                <input class="max-event-gap" type="number" value="1"> ms
+            </div>
+
+            <div class="flex-list-item">
                 <button class="return-btn btn">return</button>
             </div>
         </div>
+
+        <script>
+            // fill default form values
+            document.querySelector('#config-dialog .speed'        ).value = STATE.speed;
+            document.querySelector('#config-dialog .max-event-gap').value = STATE.maxEventGap;
+        </script>
+
+
 
         <div id="map" class="round"></div>
 
@@ -69,7 +104,7 @@
 
                 var pointsLeft;
 
-                var mapEl = document.querySelector('#map');
+                var mapEl = QS('#map');
 
                 var angles = [];
 
@@ -100,31 +135,27 @@
                         window.mozRequestAnimationFrame;
 
                 var t0;
-                var speed = 8;//15;
 
                 var onFrame = function(t) {
                     raf(onFrame);
                     var o = pointsLeft[0];
-                    if (o && o.ts <= t0 + t*speed) {
+                    if (o && o.ts <= t0 + t*STATE.speed) {
                         pointsLeft.shift();
                         onPoint(o);
                     }
                     else if (o) {
-                        var dt = o.ts - t0 - t*speed;
-                        if (dt > 800) { t0 += dt - 600; }
+                        var dt = o.ts - t0 - t*STATE.speed;
+                        if (dt > STATE.maxEventGap) { t0 += dt - STATE.maxEventGap*0.75; }
                         //console.log( dt.toFixed(0) );
                     }
                 };
 
-                //var query = 'accuracy=12&time=1444003200000,1444089600000&simplify=0.0001';
-                var query = 'simplify=0.0001';
-
-                /*GL.ajax(SERVER + '/get?' + query + '&geojson=1', null, function(err, o) {
+                /*GL.ajax(STATE.server + '/get?' + query + '&geojson=1', null, function(err, o) {
                     if (err) { return w.alert(err); }
                     L.geoJson(o).addTo(map);
                 });*/
 
-                GL.ajax(SERVER + '/get?' + query, null, function(err, o) {
+                GL.ajax(STATE.server + '/get?' + STATE.query, null, function(err, o) {
                     if (err) { return w.alert(err); }
                     //console.log(o);
                     pointsLeft = o;
@@ -138,9 +169,13 @@
                     document.body.classList.toggle('in-config');
                 });
 
-                QS('#config-dialog .edit-query-btn').addEventListener('click', function() {
-                    w.prompt('query string:', 'cenas e coisas');
-                });
+                QS('#config-dialog .edit-server-btn').addEventListener('click', GL.handlePromptClickFactory(STATE, store, 'server', 'server:'));
+
+                QS('#config-dialog .edit-query-btn').addEventListener('click', GL.handlePromptClickFactory(STATE, store, 'query', 'query:'));
+
+                QS('#config-dialog .speed').addEventListener('change', GL.handleNumericInputChangeFactory(STATE, store, 'speed'));
+
+                QS('#config-dialog .max-event-gap').addEventListener('change', GL.handleNumericInputChangeFactory(STATE, store, 'maxEventGap'));
 
                 QS('#config-dialog .return-btn').addEventListener('click', function() {
                     document.body.classList.toggle('in-config');
@@ -153,7 +188,7 @@
                     var H = window.innerHeight;
                     var d = Math.min(W, H);
                     var d2 = d/2;
-                    var mapEl = document.querySelector('#map');
+                    var mapEl = QS('#map');
 
                     var s = mapEl.style;
                     s.width  = d + 'px';
@@ -161,7 +196,7 @@
                     s.marginLeft = -d2 + 'px';
                     s.marginTop  = -d2 + 'px';
 
-                    var c = document.querySelector('circle');
+                    var c = QS('circle');
                     c.setAttribute('cx', d2);
                     c.setAttribute('cy', d2);
                     c.setAttribute('r', d2);

@@ -243,7 +243,10 @@
                     if (dist) { result.push('dist=' + dist); }
 
                     var trans = applyTrans();
-                    if (trans) { result.push(trans + '=' + getSegmentation()); }
+                    if (trans) {
+                        var v = ( (trans === 'count') ? 1 : getSegmentation() );
+                        result.push(trans + '=' + v);
+                    }
 
                     if (!getFullUrl) {
                         return result.join('&');

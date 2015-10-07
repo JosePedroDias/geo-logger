@@ -1,8 +1,3 @@
-//var SERVER = 'http://127.0.0.1:7744';
-var SERVER = 'http://stage.sl.pt:7744';
-
-
-
 (function(w) {
     'use strict';
 
@@ -67,6 +62,32 @@ var SERVER = 'http://stage.sl.pt:7744';
 
 
 
+    var handleNumericInputChangeFactory = function(STATE, store, keyName) {
+        return function(ev) {
+            var el = ev.target;
+            var v = el.value;
+            if (isFinite(v)) {
+                STATE[keyName] = v;
+                store.put(keyName, v);
+            }
+            else {
+                el.value = STATE[keyName];
+            }
+        };
+    };
+
+    var handlePromptClickFactory = function(STATE, store, keyName, label) {
+        return function(/*ev*/) {
+            var v = w.prompt(label, STATE[keyName]);
+            if (v) {
+                STATE[keyName] = v;
+                store.put(keyName, v);
+            }
+        };
+    };
+
+
+
     var ajax = function(uri, body, cb) {
         var xhr = new XMLHttpRequest();
         xhr.open(body ? 'POST' : 'GET', uri, true);
@@ -84,8 +105,10 @@ var SERVER = 'http://stage.sl.pt:7744';
 
 
     w.geoLogger = {
-        ajax         : ajax,
-        getTileLayer : getTileLayer
+        ajax                            : ajax,
+        getTileLayer                    : getTileLayer,
+        handleNumericInputChangeFactory : handleNumericInputChangeFactory,
+        handlePromptClickFactory        : handlePromptClickFactory
     };
 
 })(this);
